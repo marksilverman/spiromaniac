@@ -6,38 +6,54 @@
     <title>Spiroman</title>
 
     <script type="text/javascript">
-        var ww = 1500;
-        var hh = 800;
-
-        function line(ctx, angle, x, y) {
-            x *= 60;
-            y *= 60;
-            x += ww / 2;
-            y += hh / 2;
-            if (angle == 0.0)
-                ctx.moveTo(x, y);
-            else
-                ctx.lineTo(x, y);
-        }
+        let ww = 1500;
+        let hh = 800;
+        let r1 = 5;
+        let r2 = 3;
+        let height = 0.5;
 
       function draw() {
         var canvas = document.getElementById('spiro');
         if (canvas.getContext) {
           var ctx = canvas.getContext('2d');
-        }
-          ctx.beginPath();
-          var height = 0.5;
-          var r1 = 5;
-          var r2 = 3;
-          var r = r1 - r2;
-          for (let angle = 0.0; angle < 10 * 2 * Math.PI; angle += 0.01) {
-              var x = r * Math.cos(angle) + height * Math.cos(angle * r / r2);
-              var y = r * Math.sin(angle) - height * Math.sin(angle * r / r2);
-              line(ctx, angle, x, y);
           }
+          document.getElementById("r1").innerHTML = "r1: " + r1;
+          document.getElementById("r2").innerHTML = "r2: " + r2;
+          document.getElementById("height").innerHTML = "height: " + height;
 
+          ctx.clearRect(0, 0, ww, hh);
+          ctx.beginPath();
+          var r = r1 - r2;
+          var x0 = ww / 2;
+          var y0 = hh / 2;
+          var scale = 60;
+          for (let angle = 0.0; angle < 10 * 2 * Math.PI; angle += 0.01) {
+              var x = x0 + scale * (r * Math.cos(angle) + height * Math.cos(angle * r / r2));
+              var y = y0 + scale * (r * Math.sin(angle) - height * Math.sin(angle * r / r2));
+              if (angle == 0.0)
+                  ctx.moveTo(x, y);
+              else
+                  ctx.lineTo(x, y);
+          }
           ctx.stroke();
-      }
+        }
+
+        function r1pp() {
+            r1 += 1;
+            draw()
+        }
+        function r1mm() {
+            r1 -= 1;
+            draw()
+        }
+        function r2pp() {
+            r2 += 1;
+            draw()
+        }
+        function r2mm() {
+            r2 -= 1;
+            draw()
+        }
     </script>
     
     <style type="text/css">
@@ -46,6 +62,14 @@
 
   </head>
   <body onload="draw();">
-    <canvas id="spiro" width=1500 height=800></canvas>
+      <div id="r1"></div>
+      <div id="r2"></div>
+      <div id="height"></div>
+      <button onclick="r1pp()">r1++</button>
+      <button onclick="r1mm()">r1--</button>
+      <button onclick="r2pp()">r2++</button>
+      <button onclick="r2mm()">r2--</button>
+      <br />
+      <canvas id="spiro" width=1500 height=800></canvas>
   </body>
 </html>
