@@ -11,48 +11,80 @@
         let r1 = 5;
         let r2 = 3;
         let height = 0.5;
+        var canvas;
+        var ctx;
+        let delta = 0.1;
+        let intervalID = 0;
+        let scale = 60;
 
-      function draw() {
-        var canvas = document.getElementById('spiro');
-        if (canvas.getContext) {
-          var ctx = canvas.getContext('2d');
-          }
-          document.getElementById("r1").innerHTML = "r1: " + r1;
-          document.getElementById("r2").innerHTML = "r2: " + r2;
-          document.getElementById("height").innerHTML = "height: " + height;
-
-          ctx.clearRect(0, 0, ww, hh);
-          ctx.beginPath();
-          var r = r1 - r2;
-          var x0 = ww / 2;
-          var y0 = hh / 2;
-          var scale = 60;
-          for (let angle = 0.0; angle < 10 * 2 * Math.PI; angle += 0.01) {
-              var x = x0 + scale * (r * Math.cos(angle) + height * Math.cos(angle * r / r2));
-              var y = y0 + scale * (r * Math.sin(angle) - height * Math.sin(angle * r / r2));
-              if (angle == 0.0)
-                  ctx.moveTo(x, y);
-              else
-                  ctx.lineTo(x, y);
-          }
-          ctx.stroke();
+        function draw() {
+            document.getElementById("r1").innerHTML = "r1: " + r1;
+            document.getElementById("r2").innerHTML = "r2: " + r2;
+            document.getElementById("scale").innerHTML = "scale: " + scale;
+            ctx.clearRect(-ww/2, -hh/2, ww, hh);
+            ctx.beginPath();
+            var r = r1 - r2;
+            var tooBig = false;
+            for (let angle = 0.0; angle < 20 * 2 * Math.PI; angle += 0.01) {
+                var x = scale * (r * Math.cos(angle) + height * Math.cos(angle * r / r2));
+                var y = scale * (r * Math.sin(angle) - height * Math.sin(angle * r / r2));
+                if (angle == 0.0)
+                    ctx.moveTo(x, y);
+                else
+                    ctx.lineTo(x, y);
+                if (y > (hh / 2))
+                    tooBig = true;
+            }
+            ctx.lineWidth = 5;
+            ctx.stroke();
+            if (tooBig)
+                delta = delta * -1;
+            height += delta;
         }
-
-        function r1pp() {
-            r1 += 1;
-            draw()
+      function setup() {
+          canvas = document.getElementById('spiro');
+          ctx = canvas.getContext('2d');
+          ctx.translate(ww / 2, hh / 2);
+          set_color();
+          intervalID = window.setInterval(draw, 20);
         }
-        function r1mm() {
-            r1 -= 1;
-            draw()
+        function set_color() {
+            rr = Math.floor(Math.random() * 255);
+            gg = Math.floor(Math.random() * 255);
+            bb = Math.floor(Math.random() * 255);
+            ctx.strokeStyle = 'rgb(' + rr + ',' + gg + ',' + bb + ', 1)';
         }
-        function r2pp() {
-            r2 += 1;
-            draw()
-        }
-        function r2mm() {
-            r2 -= 1;
-            draw()
+        function doButton(b) {
+            if (b == 100) {
+                // pause
+                if (intervalID) {
+                    window.clearInterval(intervalID);
+                    intervalID = 0;
+                }
+                else {
+                    intervalID = window.setInterval(draw, 20);
+                }
+            }
+            else {
+                if (b == 1)
+                    r1 += 1;
+                else if (b == 2)
+                    r1 -= 1;
+                else if (b == 3)
+                    r2 += 1;
+                else if (b == 4)
+                    r2 -= 1;
+                else if (b == 5)
+                    scale += 10;
+                else if (b == 6)
+                    scale -= 10;
+                if (intervalID == 0) {
+                    // unpause
+                    doButton(100);
+                }
+                height = 0.5;
+                delta = 0.1;
+            }
         }
     </script>
     
@@ -61,14 +93,18 @@
     </style>
 
   </head>
-  <body onload="draw();">
+  <body onload="setup();">
       <div id="r1"></div>
       <div id="r2"></div>
-      <div id="height"></div>
-      <button onclick="r1pp()">r1++</button>
-      <button onclick="r1mm()">r1--</button>
-      <button onclick="r2pp()">r2++</button>
-      <button onclick="r2mm()">r2--</button>
+      <div id="scale"></div>
+      <button onclick="doButton(1)">r1++</button>
+      <button onclick="doButton(2)">r1--</button>
+      <button onclick="doButton(3)">r2++</button>
+      <button onclick="doButton(4)">r2--</button>
+      <button onclick="doButton(5)">scale++</button>
+      <button onclick="doButton(6)">scale--</button>
+      <button onclick="set_color()">color</button>
+      <button onclick="doButton(100)">pause</button>
       <br />
       <canvas id="spiro" width=1500 height=800></canvas>
   </body>
