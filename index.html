@@ -4,24 +4,48 @@
   <head>
     <meta charset="utf-8"/>
     <title>Spiroman</title>
-Spiroman!
+
     <script type="text/javascript">
+        var ww = 1500;
+        var hh = 800;
+
+        function line(ctx, angle, x, y) {
+            x *= 60;
+            y *= 60;
+            x += ww / 2;
+            y += hh / 2;
+            if (angle == 0.0)
+                ctx.moveTo(x, y);
+            else
+                ctx.lineTo(x, y);
+        }
 
       function draw() {
         var canvas = document.getElementById('spiro');
         if (canvas.getContext) {
           var ctx = canvas.getContext('2d');
         }
+          ctx.beginPath();
+          var height = 0.5;
+          var r1 = 5;
+          var r2 = 3;
+          var r = r1 - r2;
+          for (let angle = 0.0; angle < 10 * 2 * Math.PI; angle += 0.01) {
+              var x = r * Math.cos(angle) + height * Math.cos(angle * r / r2);
+              var y = r * Math.sin(angle) - height * Math.sin(angle * r / r2);
+              line(ctx, angle, x, y);
+          }
 
+          ctx.stroke();
       }
     </script>
     
     <style type="text/css">
       canvas { border: 1px solid black; }
     </style>
+
   </head>
-test
   <body onload="draw();">
-    <canvas id="spiro" width="150" height="150"></canvas>
+    <canvas id="spiro" width=1500 height=800></canvas>
   </body>
 </html>
