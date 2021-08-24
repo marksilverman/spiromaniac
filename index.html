@@ -1,34 +1,51 @@
 <!DOCTYPE html>
 <html>
-
-  <head>
-    <meta charset="utf-8"/>
+<head>
+    <meta charset="utf-8" />
     <title>Spiroman</title>
 
     <script type="text/javascript">
-        let ww = 1500;
-        let hh = 800;
-        let r1 = 5;
-        let r2 = 3;
+        let ww = window.innerWidth * .9;
+        let hh = window.innerHeight * .8;
+        let r1 = 4, r2 = 3, r3 = 2;
+        let intervalID = 0, scale = 60, delta = 0.1;
         let height = 0.5;
-        var canvas;
-        var ctx;
-        let delta = 0.1;
-        let intervalID = 0;
-        let scale = 60;
+        var canvas, ctx;
+
+        function msg(info) {
+            document.getElementById("msg").innerHTML = info;
+        }
 
         function draw() {
             document.getElementById("r1").innerHTML = "r1: " + r1;
             document.getElementById("r2").innerHTML = "r2: " + r2;
+            document.getElementById("r3").innerHTML = "r3: " + r3;
             document.getElementById("scale").innerHTML = "scale: " + scale;
-            ctx.clearRect(-ww/2, -hh/2, ww, hh);
+            ctx.canvas.width = ww;
+            ctx.canvas.height = hh;
+            ctx.translate(ww / 2, hh / 2);
+            //ctx.clearRect(-ww / 2, -hh / 2, ww, hh);
             ctx.beginPath();
-            var r = r1 - r2;
+            var r23 = r2 - r3;
+            var r12 = r1 - r2;
             var tooBig = false;
+            phase = 100;
             for (let angle = 0.0; angle < 20 * 2 * Math.PI; angle += 0.01) {
-                var x = scale * (r * Math.cos(angle) + height * Math.cos(angle * r / r2));
-                var y = scale * (r * Math.sin(angle) - height * Math.sin(angle * r / r2));
-                if (angle == 0.0)
+                //phase += 0.01;
+
+                //  var x = scale * (r * Math.cos(angle) + height * Math.cos(angle * r / r2));
+                var x = scale *
+                    (r12 * Math.cos(angle) +
+                    r23 * Math.cos((phase+angle) * r12 / r2) +
+                    + height * Math.cos(angle * r23 / r3));
+
+                // var y = scale * (r * Math.sin(angle) - height * Math.sin(angle * r / r2));
+                var y = scale *
+                    (r12 * Math.sin(angle) -
+                    r23 * Math.sin((phase+angle) * r12 / r2)
+                    - height * Math.sin(angle * r23 / r3));
+                //msg('x: ' + x + ', y: ' + y);
+                if (angle == 0)
                     ctx.moveTo(x, y);
                 else
                     ctx.lineTo(x, y);
@@ -41,12 +58,11 @@
                 delta = delta * -1;
             height += delta;
         }
-      function setup() {
-          canvas = document.getElementById('spiro');
-          ctx = canvas.getContext('2d');
-          ctx.translate(ww / 2, hh / 2);
-          set_color();
-          intervalID = window.setInterval(draw, 20);
+        function setup() {
+            canvas = document.getElementById('spiro');
+            ctx = canvas.getContext('2d');
+            set_color();
+            intervalID = window.setInterval(draw, 20);
         }
         function set_color() {
             rr = Math.floor(Math.random() * 255);
@@ -75,8 +91,12 @@
                 else if (b == 4)
                     r2 -= 1;
                 else if (b == 5)
-                    scale += 10;
+                    r3 += 1;
                 else if (b == 6)
+                    r3 -= 1;
+                else if (b == 7)
+                    scale += 10;
+                else if (b == 8)
                     scale -= 10;
                 if (intervalID == 0) {
                     // unpause
@@ -87,25 +107,36 @@
             }
         }
     </script>
-    
+
     <style type="text/css">
-      canvas { border: 1px solid black; }
+        canvas {
+            border: 1px solid black;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
     </style>
 
-  </head>
-  <body onload="setup();">
-      <div id="r1"></div>
-      <div id="r2"></div>
-      <div id="scale"></div>
-      <button onclick="doButton(1)">r1++</button>
-      <button onclick="doButton(2)">r1--</button>
-      <button onclick="doButton(3)">r2++</button>
-      <button onclick="doButton(4)">r2--</button>
-      <button onclick="doButton(5)">scale++</button>
-      <button onclick="doButton(6)">scale--</button>
-      <button onclick="set_color()">color</button>
-      <button onclick="doButton(100)">pause</button>
-      <br />
-      <canvas id="spiro" width=1500 height=800></canvas>
-  </body>
+</head>
+<body onload="setup();">
+    <div id="msg"></div>
+    <div id="r1"></div>
+    <div id="r2"></div>
+    <div id="r3"></div>
+    <div id="scale"></div>
+    <button onclick="doButton(1)">r1++</button>
+    <button onclick="doButton(2)">r1--</button>
+    <button onclick="doButton(3)">r2++</button>
+    <button onclick="doButton(4)">r2--</button>
+    <button onclick="doButton(5)">r3++</button>
+    <button onclick="doButton(6)">r3--</button>
+    <button onclick="doButton(7)">scale++</button>
+    <button onclick="doButton(8)">scale--</button>
+    <button onclick="set_color()">color</button>
+    <button onclick="doButton(100)">pause</button>
+    <br />
+    <canvas id="spiro" width=1500 height=800></canvas>
+</body>
 </html>
