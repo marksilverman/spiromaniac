@@ -2,72 +2,63 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Spiroman</title>
+    <title>Spiromaniac</title>
 
     <script type="text/javascript">
+        // interesting presets:
+        // 10, -2, 6, 12, 40, .23
+        // 5, 7, -1, 24, 7, 0.10
+        // -6, 2, 8, 16, 7, 0.09
         let ww = window.innerWidth * .6;
         let hh = window.innerHeight * .8;
-        let rad1 = 4, rad2 = 3, rad3 = 2;
-        let intervalID = 0, scale = 60, delta = 0.1;
-        let offset = 0.5;
+        let radius1 = 1, radius2 = 2, radius3 = 3, line_width = 5;
+        let intervalID = 0, scale = 80, speed = 0.04;
+        let offset = 0.0, rotateAngle = 0.0, rotateSpeed = 0.01, loops = 10;
         var canvas, ctx;
-        let rotateAngle = 0.0;
-        let loops = 40;
 
-        function msg(info) {
-            document.getElementById("msg").innerHTML = info;
-        }
+        function msg(info) { document.getElementById("msg").innerHTML = info; }
 
         function draw() {
-            document.getElementById("rad1").innerHTML = Number.parseFloat(rad1).toPrecision(2);
-            document.getElementById("rad2").innerHTML = Number.parseFloat(rad2).toPrecision(2);
-            document.getElementById("rad3").innerHTML = Number.parseFloat(rad3).toPrecision(2);
-            document.getElementById("scale").innerHTML = scale;
-            document.getElementById("loops").innerHTML = loops;
-
-            ctx.canvas.width = ww;
-            ctx.canvas.height = hh;
+            canvas.width = ww;
+            canvas.height = hh;
             ctx.translate(ww / 2, hh / 2);
-            //            ctx.clearRect(-ww / 2, -hh / 2, ww, hh);
             ctx.beginPath();
             ctx.rotate(rotateAngle);
-            rotateAngle += 0.01;
-
+            rotateAngle += rotateSpeed;
+            var tooBig = false;
             rr = (rr + 1) % 255;
             gg = (gg + 1) % 255;
             bb = (bb + 1) % 255;
-//            var grd = ctx.createRadialGradient(ww * .5, hh * .5, ww, ww * .5, hh * .2, ww / 2);
-//            for (let i = 1; i <= 2; i++)
-//                grd.addColorStop(i / 2, 'rgb(' + (rr + i * 99) % 255 + ',' + (gg + i * 99) % 255 + ',' + (bb + i * 99) % 255 + ', 1)');
-//            ctx.strokeStyle = grd;
-            ctx.strokeStyle = 'rgb(' + rr + ', ' + gg + ', ' + bb + ')';
+            //ctx.strokeStyle = 'rgb(' + rr + ', ' + gg + ', ' + bb + ')';
 
-            var tooBig = false;
-            for (let angle = 0.0; angle < loops * 2 * Math.PI; angle += 0.1) {
+            for (let angle1 = 0.0; angle1 < loops * 2 * Math.PI; angle1 += 0.005)
+            {
+                var angle2 = angle1 * (radius1 - radius2) / radius2;
+//                var angle3 = angle2 * (radius2 - radius3) / radius3;
+                var angle3 = angle2 - radius2 * angle2 / radius3;
 
-                var x = scale *
-                    ((rad1 - rad2) * Math.cos(angle) +
-                        (rad2 - rad3) * Math.cos(angle * (rad1 - rad2) / rad2) +
-                        + offset * Math.cos(angle * (rad2 - rad3) / rad3));
+                var x = (radius1 - radius2) * Math.cos(angle1);
+                x += (radius2 - radius3) * Math.cos(angle2);
+                x += radius3 * offset * Math.cos(angle3);
+                x *= scale;
 
-                var y = scale *
-                    ((rad1 - rad2) * Math.sin(angle) -
-                        (rad2 - rad3) * Math.sin(angle * (rad1 - rad2) / rad2)
-                        - offset * Math.sin(angle * (rad2 - rad3) / rad3));
+                var y = (radius1 - radius2) * Math.sin(angle1);
+                y -= (radius2 - radius3) * Math.sin(angle2);
+                y -= offset * radius3 * Math.sin(angle3);
+                y *= scale;
 
-                if (angle == 0)
+                if (angle1 == 0)
                     ctx.moveTo(x, y);
                 else
                     ctx.lineTo(x, y);
                 if (y > hh / 2)
                     tooBig = true;
-
             }
-            ctx.lineWidth = 5;
+            ctx.lineWidth = line_width;
             ctx.stroke();
             if (tooBig)
-                delta = delta * -1;
-            offset += delta;
+                speed = speed * -1;
+            offset += speed;
         }
         function setup() {
             canvas = document.getElementById('spiro');
@@ -75,56 +66,55 @@
             rr = Math.floor(Math.random() * 255);
             gg = Math.floor(Math.random() * 255);
             bb = Math.floor(Math.random() * 255);
+            document.getElementById("radius1").value = Number.parseFloat(radius1).toPrecision(2);
+            document.getElementById("radius2").value = Number.parseFloat(radius2).toPrecision(2);
+            document.getElementById("radius3").value = Number.parseFloat(radius3).toPrecision(2);
             intervalID = window.setInterval(draw, 20);
         }
         function pause() {
             if (intervalID) {
                 window.clearInterval(intervalID);
                 intervalID = 0;
+                document.getElementById("pause").innerHTML = "unpause";
             }
             else {
                 intervalID = window.setInterval(draw, 20);
+                document.getElementById("pause").innerHTML = "pause";
             }
         }
         function doButton(b) {
             switch (b) {
-                case 1: rad1 += 1; break;
-                case 2: rad1 -= 1; break;
-                case 3: rad2 += 1; break;
-                case 4: rad2 -= 1; break;
-                case 5: rad3 += 1; break;
-                case 6: rad3 -= 1; break;
-                case 7: scale += 5; break;
-                case 8: scale -= 5; break;
-                case 9: loops += 5; break;
-                case 10: loops-= 5; break;
-                case 11:
-                    rad1 = 10 - Math.random() * 20;
-                    rad2 = 10 - Math.random() * 20;
-                    rad3 = 10 - Math.random() * 20;
+                case 1: radius1 += 1; break;
+                case 2: radius1 -= 1; break;
+                case 3: radius2 += 1; break;
+                case 4: radius2 -= 1; break;
+                case 5: radius3 += 1; break;
+                case 6: radius3 -= 1; break;
+                case 13:
+                    radius1 = Math.round(10 - Math.random() * 20);
+                    radius2 = Math.round(10 - Math.random() * 20);
+                    radius3 = Math.round(10 - Math.random() * 20);
                     break;
             }
+            document.getElementById("radius1").value = radius1;
+            document.getElementById("radius2").value = radius2;
+            document.getElementById("radius3").value = radius3;
             if (intervalID == 0)
                 pause();
-            offset = 0.5;
-            delta = 0.1;
         }
-
+        function newRad1() { radius1 = parseFloat(document.getElementById("radius1").value); }
+        function newRad2() { radius2 = parseFloat(document.getElementById("radius2").value); }
+        function newRad3() { radius3 = parseFloat(document.getElementById("radius3").value); }
     </script>
 
     <style type="text/css">
         canvas {
+            background-color: #bbeedd;
             border: 1px solid black;
             margin: 10px;
         }
-
-        html, body {
-            margin: 10px;
-            font-family: monospace;
-            font-size: 20px;
-        }
-
-        button {
+        html, body, button {
+            margin: 2px;
             font-family: monospace;
             font-size: 20px;
         }
@@ -136,27 +126,46 @@
         <div id="msg"></div>
         <table>
             <tr>
-                <td><button onclick="doButton(1)">rad1++</button></td>
-                <td><button onclick="doButton(3)">rad2++</button></td>
-                <td><button onclick="doButton(5)">rad3++</button></td>
-                <td><button onclick="doButton(7)">scale++</button></td>
-                <td><button onclick="doButton(9)">loops++</button></td>
-                <td><button onclick="doButton(11)">randomize</button></td>
-                <td><button onclick="pause()">pause</button></td>
+                <td><button onclick="doButton(1)">radius1++</button></td>
+                <td><button onclick="doButton(3)">radius2++</button></td>
+                <td><button onclick="doButton(5)">radius3++</button></td>
+                <td><button onclick="doButton(13)">randomize</button></td>
+
+                <td><div class="slidecontainer">speed
+                <input type="range" min="0" max="100" value="50" class="slider" id="speed"
+                       oninput="(function(){speed = value / 200.0;})();">
+                </div></td>
+
+                <td><div class="slidecontainer">rotation
+                <input type="range" min="-40" max="40" value="10" class="slider" id="rotate"
+                       oninput="(function(){rotateSpeed = value / 200;})();">
+                </div></td>
             </tr>
             <tr>
-                <td><label id="rad1"></label></td>
-                <td><label id="rad2"></label></td>
-                <td><label id="rad3"></label></td>
-                <td><label id="scale"></label></td>
-                <td><label id="loops"></label></td>
+                <td><input id="radius1" onchange="newRad1()"></td>
+                <td><input id="radius2" onchange="newRad2()"></td>
+                <td><input id="radius3" onchange="newRad3()"></td>
+                <td><button id="pause" onclick="pause()">pause</button></td>
+
+                <td><div class="slidecontainer">loops
+                <input type="range" min="1" max="100" value="10" class="slider" id="loops"
+                       oninput="(function(){loops = value;})();">
+                </div></td>
+
+                <td><div class="slidecontainer">width
+                <input type="range" min="1" max="100" value="5" class="slider"
+                       oninput="(function(){line_width = value;})();">
+                </div></td>
             </tr>
             <tr>
-                <td><button onclick="doButton(2)">rad1--</button></td>
-                <td><button onclick="doButton(4)">rad2--</button></td>
-                <td><button onclick="doButton(6)">rad3--</button></td>
-                <td><button onclick="doButton(8)">scale--</button></td>
-                <td><button onclick="doButton(10)">loops--</button></td>
+                <td><button onclick="doButton(2)">radius1--</button></td>
+                <td><button onclick="doButton(4)">radius2--</button></td>
+                <td><button onclick="doButton(6)">radius3--</button></td>
+                <td></td>
+                <td><div class="slidecontainer">scale
+                <input type="range" min="-200" max="200" value="80" class="slider" id="scale"
+                       oninput="(function(){ scale = value; offset = 0.0; })();">
+                </div></td>
             </tr>
         </table>
     </p>
