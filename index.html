@@ -5,138 +5,161 @@
     <title>Spiroman</title>
 
     <script type="text/javascript">
-        let ww = window.innerWidth * .9;
+        let ww = window.innerWidth * .6;
         let hh = window.innerHeight * .8;
-        let r1 = 4, r2 = 3, r3 = 2;
+        let rad1 = 4, rad2 = 3, rad3 = 2;
         let intervalID = 0, scale = 60, delta = 0.1;
-        let height = 0.5;
+        let offset = 0.5;
         var canvas, ctx;
+        let rotateAngle = 0.0;
+        let loops = 40;
 
         function msg(info) {
             document.getElementById("msg").innerHTML = info;
         }
 
         function draw() {
-            document.getElementById("r1").innerHTML = "r1: " + r1;
-            document.getElementById("r2").innerHTML = "r2: " + r2;
-            document.getElementById("r3").innerHTML = "r3: " + r3;
-            document.getElementById("scale").innerHTML = "scale: " + scale;
+            document.getElementById("rad1").innerHTML = Number.parseFloat(rad1).toPrecision(2);
+            document.getElementById("rad2").innerHTML = Number.parseFloat(rad2).toPrecision(2);
+            document.getElementById("rad3").innerHTML = Number.parseFloat(rad3).toPrecision(2);
+            document.getElementById("scale").innerHTML = scale;
+            document.getElementById("loops").innerHTML = loops;
+
             ctx.canvas.width = ww;
             ctx.canvas.height = hh;
             ctx.translate(ww / 2, hh / 2);
-            //ctx.clearRect(-ww / 2, -hh / 2, ww, hh);
+            //            ctx.clearRect(-ww / 2, -hh / 2, ww, hh);
             ctx.beginPath();
-            var r23 = r2 - r3;
-            var r12 = r1 - r2;
+            ctx.rotate(rotateAngle);
+            rotateAngle += 0.01;
+
+            rr = (rr + 1) % 255;
+            gg = (gg + 1) % 255;
+            bb = (bb + 1) % 255;
+//            var grd = ctx.createRadialGradient(ww * .5, hh * .5, ww, ww * .5, hh * .2, ww / 2);
+//            for (let i = 1; i <= 2; i++)
+//                grd.addColorStop(i / 2, 'rgb(' + (rr + i * 99) % 255 + ',' + (gg + i * 99) % 255 + ',' + (bb + i * 99) % 255 + ', 1)');
+//            ctx.strokeStyle = grd;
+            ctx.strokeStyle = 'rgb(' + rr + ', ' + gg + ', ' + bb + ')';
+
             var tooBig = false;
-            phase = 100;
-            for (let angle = 0.0; angle < 20 * 2 * Math.PI; angle += 0.01) {
-                //phase += 0.01;
+            for (let angle = 0.0; angle < loops * 2 * Math.PI; angle += 0.1) {
 
-                //  var x = scale * (r * Math.cos(angle) + height * Math.cos(angle * r / r2));
                 var x = scale *
-                    (r12 * Math.cos(angle) +
-                    r23 * Math.cos((phase+angle) * r12 / r2) +
-                    + height * Math.cos(angle * r23 / r3));
+                    ((rad1 - rad2) * Math.cos(angle) +
+                        (rad2 - rad3) * Math.cos(angle * (rad1 - rad2) / rad2) +
+                        + offset * Math.cos(angle * (rad2 - rad3) / rad3));
 
-                // var y = scale * (r * Math.sin(angle) - height * Math.sin(angle * r / r2));
                 var y = scale *
-                    (r12 * Math.sin(angle) -
-                    r23 * Math.sin((phase+angle) * r12 / r2)
-                    - height * Math.sin(angle * r23 / r3));
-                //msg('x: ' + x + ', y: ' + y);
+                    ((rad1 - rad2) * Math.sin(angle) -
+                        (rad2 - rad3) * Math.sin(angle * (rad1 - rad2) / rad2)
+                        - offset * Math.sin(angle * (rad2 - rad3) / rad3));
+
                 if (angle == 0)
                     ctx.moveTo(x, y);
                 else
                     ctx.lineTo(x, y);
-                if (y > (hh / 2))
+                if (y > hh / 2)
                     tooBig = true;
+
             }
             ctx.lineWidth = 5;
             ctx.stroke();
             if (tooBig)
                 delta = delta * -1;
-            height += delta;
+            offset += delta;
         }
         function setup() {
             canvas = document.getElementById('spiro');
             ctx = canvas.getContext('2d');
-            set_color();
-            intervalID = window.setInterval(draw, 20);
-        }
-        function set_color() {
             rr = Math.floor(Math.random() * 255);
             gg = Math.floor(Math.random() * 255);
             bb = Math.floor(Math.random() * 255);
-            ctx.strokeStyle = 'rgb(' + rr + ',' + gg + ',' + bb + ', 1)';
+            intervalID = window.setInterval(draw, 20);
         }
-        function doButton(b) {
-            if (b == 100) {
-                // pause
-                if (intervalID) {
-                    window.clearInterval(intervalID);
-                    intervalID = 0;
-                }
-                else {
-                    intervalID = window.setInterval(draw, 20);
-                }
+        function pause() {
+            if (intervalID) {
+                window.clearInterval(intervalID);
+                intervalID = 0;
             }
             else {
-                if (b == 1)
-                    r1 += 1;
-                else if (b == 2)
-                    r1 -= 1;
-                else if (b == 3)
-                    r2 += 1;
-                else if (b == 4)
-                    r2 -= 1;
-                else if (b == 5)
-                    r3 += 1;
-                else if (b == 6)
-                    r3 -= 1;
-                else if (b == 7)
-                    scale += 10;
-                else if (b == 8)
-                    scale -= 10;
-                if (intervalID == 0) {
-                    // unpause
-                    doButton(100);
-                }
-                height = 0.5;
-                delta = 0.1;
+                intervalID = window.setInterval(draw, 20);
             }
         }
+        function doButton(b) {
+            switch (b) {
+                case 1: rad1 += 1; break;
+                case 2: rad1 -= 1; break;
+                case 3: rad2 += 1; break;
+                case 4: rad2 -= 1; break;
+                case 5: rad3 += 1; break;
+                case 6: rad3 -= 1; break;
+                case 7: scale += 5; break;
+                case 8: scale -= 5; break;
+                case 9: loops += 5; break;
+                case 10: loops-= 5; break;
+                case 11:
+                    rad1 = 10 - Math.random() * 20;
+                    rad2 = 10 - Math.random() * 20;
+                    rad3 = 10 - Math.random() * 20;
+                    break;
+            }
+            if (intervalID == 0)
+                pause();
+            offset = 0.5;
+            delta = 0.1;
+        }
+
     </script>
 
     <style type="text/css">
         canvas {
             border: 1px solid black;
+            margin: 10px;
         }
+
         html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
+            margin: 10px;
+            font-family: monospace;
+            font-size: 20px;
+        }
+
+        button {
+            font-family: monospace;
+            font-size: 20px;
         }
     </style>
-
 </head>
+
 <body onload="setup();">
-    <div id="msg"></div>
-    <div id="r1"></div>
-    <div id="r2"></div>
-    <div id="r3"></div>
-    <div id="scale"></div>
-    <button onclick="doButton(1)">r1++</button>
-    <button onclick="doButton(2)">r1--</button>
-    <button onclick="doButton(3)">r2++</button>
-    <button onclick="doButton(4)">r2--</button>
-    <button onclick="doButton(5)">r3++</button>
-    <button onclick="doButton(6)">r3--</button>
-    <button onclick="doButton(7)">scale++</button>
-    <button onclick="doButton(8)">scale--</button>
-    <button onclick="set_color()">color</button>
-    <button onclick="doButton(100)">pause</button>
-    <br />
+    <p>
+        <div id="msg"></div>
+        <table>
+            <tr>
+                <td><button onclick="doButton(1)">rad1++</button></td>
+                <td><button onclick="doButton(3)">rad2++</button></td>
+                <td><button onclick="doButton(5)">rad3++</button></td>
+                <td><button onclick="doButton(7)">scale++</button></td>
+                <td><button onclick="doButton(9)">loops++</button></td>
+                <td><button onclick="doButton(11)">randomize</button></td>
+                <td><button onclick="pause()">pause</button></td>
+            </tr>
+            <tr>
+                <td><label id="rad1"></label></td>
+                <td><label id="rad2"></label></td>
+                <td><label id="rad3"></label></td>
+                <td><label id="scale"></label></td>
+                <td><label id="loops"></label></td>
+            </tr>
+            <tr>
+                <td><button onclick="doButton(2)">rad1--</button></td>
+                <td><button onclick="doButton(4)">rad2--</button></td>
+                <td><button onclick="doButton(6)">rad3--</button></td>
+                <td><button onclick="doButton(8)">scale--</button></td>
+                <td><button onclick="doButton(10)">loops--</button></td>
+            </tr>
+        </table>
+    </p>
     <canvas id="spiro" width=1500 height=800></canvas>
 </body>
 </html>
