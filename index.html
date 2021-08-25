@@ -11,31 +11,41 @@
         // -6, 2, 8, 16, 7, 0.09
         let ww = window.innerWidth * .6;
         let hh = window.innerHeight * .8;
-        let radius1 = 1, radius2 = 2, radius3 = 3, line_width = 5;
-        let intervalID = 0, scale = 80, speed = 0.04;
+        let radius1 = 1, radius2 = 2, radius3 = 3, line_width = 3;
+        let intervalID = 0, scale = 80, speed = 0.02, globalColor = 0;
         let offset = 0.0, rotateAngle = 0.0, rotateSpeed = 0.01, loops = 10;
         var canvas, ctx;
 
         function msg(info) { document.getElementById("msg").innerHTML = info; }
 
+        function nextColor()
+        {
+            globalColor++;
+            if (globalColor > 0xffffff)
+                globalColor = 0;
+            return '#' + globalColor.toString(16);
+        }
+
         function draw() {
             canvas.width = ww;
             canvas.height = hh;
+
+            var grd = ctx.createRadialGradient(ww * .5, hh * .5, ww / 2, ww * .5, hh * .5, ww / 8);
+            grd.addColorStop(0, nextColor());
+            grd.addColorStop(1, 'white');
+            ctx.fillStyle = grd;
+            ctx.rect(0, 0, ww, hh);
+            ctx.fill();
+
             ctx.translate(ww / 2, hh / 2);
             ctx.beginPath();
             ctx.rotate(rotateAngle);
             rotateAngle += rotateSpeed;
             var tooBig = false;
-            rr = (rr + 1) % 255;
-            gg = (gg + 1) % 255;
-            bb = (bb + 1) % 255;
-            //ctx.strokeStyle = 'rgb(' + rr + ', ' + gg + ', ' + bb + ')';
 
-            for (let angle1 = 0.0; angle1 < loops * 2 * Math.PI; angle1 += 0.005)
-            {
+            for (let angle1 = 0.0; angle1 < loops * 2 * Math.PI; angle1 += 0.005) {
                 var angle2 = angle1 * (radius1 - radius2) / radius2;
-//                var angle3 = angle2 * (radius2 - radius3) / radius3;
-                var angle3 = angle2 - radius2 * angle2 / radius3;
+                var angle3 = angle2 * (radius2 - radius3) / radius3;
 
                 var x = (radius1 - radius2) * Math.cos(angle1);
                 x += (radius2 - radius3) * Math.cos(angle2);
@@ -66,6 +76,7 @@
             rr = Math.floor(Math.random() * 255);
             gg = Math.floor(Math.random() * 255);
             bb = Math.floor(Math.random() * 255);
+            globalColor = Math.floor(Math.random() * 0xffffff);
             document.getElementById("radius1").value = Number.parseFloat(radius1).toPrecision(2);
             document.getElementById("radius2").value = Number.parseFloat(radius2).toPrecision(2);
             document.getElementById("radius3").value = Number.parseFloat(radius3).toPrecision(2);
@@ -82,37 +93,30 @@
                 document.getElementById("pause").innerHTML = "pause";
             }
         }
-        function doButton(b) {
-            switch (b) {
-                case 1: radius1 += 1; break;
-                case 2: radius1 -= 1; break;
-                case 3: radius2 += 1; break;
-                case 4: radius2 -= 1; break;
-                case 5: radius3 += 1; break;
-                case 6: radius3 -= 1; break;
-                case 13:
-                    radius1 = Math.round(10 - Math.random() * 20);
-                    radius2 = Math.round(10 - Math.random() * 20);
-                    radius3 = Math.round(10 - Math.random() * 20);
-                    break;
-            }
+        function randomize() {
+            radius1 = radius2 = radius3 = 0;
+            while (radius1 == 0)
+                radius1 = Math.round(10 - Math.random() * 20);
+            while (radius2 == 0 || radius2 == radius1)
+                radius2 = Math.round(10 - Math.random() * 20);
+            while (radius3 == 0 || radius3 == radius2 || radius3 == radius1)
+                radius3 = Math.round(10 - Math.random() * 20);
             document.getElementById("radius1").value = radius1;
             document.getElementById("radius2").value = radius2;
             document.getElementById("radius3").value = radius3;
-            if (intervalID == 0)
-                pause();
+            document.getElementById("scale").value = scale = 10;
+            document.getElementById("speed").value = speed = 0.04;
+            document.getElementById("offset").value = offset = 0.0;
+
         }
-        function newRad1() { radius1 = parseFloat(document.getElementById("radius1").value); }
-        function newRad2() { radius2 = parseFloat(document.getElementById("radius2").value); }
-        function newRad3() { radius3 = parseFloat(document.getElementById("radius3").value); }
     </script>
 
     <style type="text/css">
         canvas {
-            background-color: #bbeedd;
             border: 1px solid black;
             margin: 10px;
         }
+
         html, body, button {
             margin: 2px;
             font-family: monospace;
@@ -125,48 +129,39 @@
     <p>
         <div id="msg"></div>
         <table>
-            <tr>
-                <td><button onclick="doButton(1)">radius1++</button></td>
-                <td><button onclick="doButton(3)">radius2++</button></td>
-                <td><button onclick="doButton(5)">radius3++</button></td>
-                <td><button onclick="doButton(13)">randomize</button></td>
-
+            <tr><td><label>radius1:</label>
+                    <input  tabindex="1" type="number" id="radius1" onchange="(function () { radius1 = value; })();">
+                </td>
                 <td><div class="slidecontainer">speed
-                <input type="range" min="0" max="100" value="50" class="slider" id="speed"
-                       oninput="(function(){speed = value / 200.0;})();">
-                </div></td>
-
+                        <input tabindex="-1" type="range" min="0" max="100" value="20" class="slider" id="speed"
+                               oninput="(function(){speed = value / 200.0;})();">
+                    </div></td>
                 <td><div class="slidecontainer">rotation
-                <input type="range" min="-40" max="40" value="10" class="slider" id="rotate"
-                       oninput="(function(){rotateSpeed = value / 200;})();">
-                </div></td>
+                        <input tabindex="-1" type="range" min="0" max="40" value="10" class="slider" id="rotate"
+                               oninput="(function(){rotateSpeed = value / 200;})();">
+                    </div></td>
+                <td><button tabindex="-1" onclick="randomize()">randomize</button></td>
             </tr>
-            <tr>
-                <td><input id="radius1" onchange="newRad1()"></td>
-                <td><input id="radius2" onchange="newRad2()"></td>
-                <td><input id="radius3" onchange="newRad3()"></td>
-                <td><button id="pause" onclick="pause()">pause</button></td>
-
+            <tr><td><label>radius2:</label>
+                    <input tabindex="2" type="number" id="radius2" onchange="(function () { radius2 = value; })();">
+                </td>
                 <td><div class="slidecontainer">loops
-                <input type="range" min="1" max="100" value="10" class="slider" id="loops"
-                       oninput="(function(){loops = value;})();">
-                </div></td>
-
+                        <input tabindex="-1" type="range" min="1" max="100" value="10" class="slider" id="loops"
+                               oninput="(function(){loops = value;})();">
+                    </div></td>
                 <td><div class="slidecontainer">width
-                <input type="range" min="1" max="100" value="5" class="slider"
-                       oninput="(function(){line_width = value;})();">
-                </div></td>
+                        <input tabindex="-1" type="range" min="1" max="20" value="3" class="slider"
+                               oninput="(function(){line_width = value;})();">
+                    </div></td>
+                <td><button tabindex="-1" id="pause" onclick="pause()">pause</button></td>
             </tr>
-            <tr>
-                <td><button onclick="doButton(2)">radius1--</button></td>
-                <td><button onclick="doButton(4)">radius2--</button></td>
-                <td><button onclick="doButton(6)">radius3--</button></td>
-                <td></td>
+            <tr><td><label>radius3:</label>
+                    <input tabindex="3" type="number" id="radius3" onchange="(function () { radius2 = value; })();">
+                </td>
                 <td><div class="slidecontainer">scale
-                <input type="range" min="-200" max="200" value="80" class="slider" id="scale"
-                       oninput="(function(){ scale = value; offset = 0.0; })();">
-                </div></td>
-            </tr>
+                        <input tabindex="-1" type="range" min="1" max="100" value="30" class="slider" id="scale"
+                               oninput="(function(){ scale = value; })();">
+                    </div></td></tr>
         </table>
     </p>
     <canvas id="spiro" width=1500 height=800></canvas>
