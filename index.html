@@ -10,10 +10,11 @@
         // 5, 7, -1
         // -6, 2, 8
         // 3, -5, 4
+        // 8, 3, 5
         let ww = window.innerWidth * .6;
         let hh = window.innerHeight * .8;
         let radius1 = 3, radius2 = -5, radius3 = 4;
-        let intervalID = 0, scale = 10, speed = 0.04, globalColor = 0, line_width = 3;
+        let intervalID = 0, scale = 10, speed = 0.04, globalColor = 0, line_width = 3, noise = 0;
         let offset = 0.0, rotateAngle = 0.0, rotateSpeed = 0.01, loops = 10, factor = 200;
         var canvas, ctx;
 
@@ -50,11 +51,13 @@
                 var x = (radius1 - radius2) * Math.cos(angle1);
                 x += (radius2 - radius3) * Math.cos(angle2);
                 x += radius3 * offset * Math.cos(angle3);
+                x += noise * Math.cos(angle1) * Math.cos(angle2);
                 x *= scale;
 
                 var y = (radius1 - radius2) * Math.sin(angle1);
                 y -= (radius2 - radius3) * Math.sin(angle2);
                 y -= offset * radius3 * Math.sin(angle3);
+                y -= noise * Math.sin(angle1) * Math.sin(angle2);
                 y *= scale;
 
                 if (angle1 == 0)
@@ -71,9 +74,6 @@
         function setup() {
             canvas = document.getElementById('spiro');
             ctx = canvas.getContext('2d');
-            rr = Math.floor(Math.random() * 255);
-            gg = Math.floor(Math.random() * 255);
-            bb = Math.floor(Math.random() * 255);
             globalColor = Math.floor(Math.random() * 0xffffff);
             document.getElementById("radius1").value = Number.parseFloat(radius1).toPrecision(2);
             document.getElementById("radius2").value = Number.parseFloat(radius2).toPrecision(2);
@@ -102,10 +102,6 @@
             document.getElementById("radius1").value = radius1;
             document.getElementById("radius2").value = radius2;
             document.getElementById("radius3").value = radius3;
-//            document.getElementById("scale").value = scale = 20;
-//            speed = 0.04;
-//            document.getElementById("speed").value = speed * 200;
-//            document.getElementById("offset").value = offset = 0.0;
             nextColor();
         }
         function fullScreen()
@@ -174,10 +170,13 @@
             <tr><td><label>radius3:</label>
                     <input tabindex="3" type="number" id="radius3" onchange="(function () { radius3 = value; })();">
                 </td>
-                
                 <td><div class="slidecontainer">scale
                         <input tabindex="-1" type="range" min="1" max="50" value="10" class="slider" id="scale"
                                oninput="(function(){ scale = value; })();">
+                    </div></td>
+                <td><div class="slidecontainer">noise
+                        <input tabindex="-1" type="range" min="0" max="40" value="0" class="slider" id="noise"
+                               oninput="(function(){ noise = value; })();">
                     </div></td>
                     <td></td>
                     <td></td>
