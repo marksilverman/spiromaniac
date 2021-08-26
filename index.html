@@ -105,10 +105,28 @@
         var ctx = canvas.getContext('2d');
         var ww = window.innerWidth * .6;
         var hh = window.innerHeight * .8;
-        var raf = 0, fgcolor, bgcolor;
+        var raf = 0, fgColor, fgMgr, bgColor;
         canvas.width = ww;
         canvas.height = hh;
 
+        var colorMgr = 
+        {
+            radd: 10, gadd: -10, badd: 10,
+            rando: function () { return Math.floor(Math.random() * 155); },
+            next: function ()
+            {
+                this.red += this.radd;
+                this.green += this.gadd;
+                this.blue += this.badd;
+                if (this.red > 255) { this.red = 255; this.radd *= -1; }
+                if (this.red < 0) { this.red = 0; this.radd *= -1; }
+                if (this.green > 255) { this.green = 255; this.gadd *= -1; }
+                if (this.green < 0) { this.green = 0; this.gadd *= -1; }
+                if (this.blue > 255) { this.blue = 255; this.badd *= -1; }
+                if (this.blue < 0) { this.blue = 0; this.badd *= -1; }
+                return 'rgba(' + this.red + ',' + this.green + ',' + this.blue + ')';
+            }
+        }
         var spiro = {
             radius1: -7,
             radius2: -4,
@@ -135,6 +153,7 @@
                     this.y -= (this.radius3 - this.radius2) * Math.sin(angle2);
                     this.y -= this.offset * this.radius3 * Math.sin(angle3);
                     this.y *= this.scale;
+
                     if (this.y > hh / 2) tooBig = true;
                     if (angle1 == 0)
                         ctx.moveTo(this.x, this.y);
@@ -146,10 +165,7 @@
                 document.getElementById("scale").value = this.scale;
                 ctx.lineWidth = this.width;
 
-                rr = Math.floor(Math.random() * 55);
-                gg = Math.floor(Math.random() * 55);
-                bb = Math.floor(Math.random() * 55);
-                ctx.strokeStyle = fgcolor;
+                ctx.strokeStyle = fgColor;
                 ctx.stroke();
 
                 ctx.restore();
@@ -170,7 +186,7 @@
             document.getElementById("radius2").value = spiro.radius2;
             document.getElementById("radius3").value = spiro.radius3;
             document.getElementById("scale").value = spiro.scale = 20;
-            newColors();
+            bgColor = 'rgba(' + rando1() + ',' + rando1() + ',' + rando1() + ',';
             if (!raf) pause();
         }
         function pause() {
@@ -184,16 +200,8 @@
                 draw();
             }
         }
-        function newColors() {
-            rr = Math.floor(Math.random() * 155) + 100;
-            gg = Math.floor(Math.random() * 155) + 100;
-            bb = Math.floor(Math.random() * 155) + 100;
-            bgcolor = 'rgba(' + rr + ',' + gg + ',' + bb + ',';
-
-            rr = Math.floor(Math.random() * 55);
-            gg = Math.floor(Math.random() * 55);
-            bb = Math.floor(Math.random() * 55);
-            fgcolor = 'rgba(' + rr + ',' + gg + ',' + bb + ')';
+        function rando1(r) {
+            return Math.floor(Math.random() * 155) + 100;
         }
 
         function main() {
@@ -205,14 +213,16 @@
             document.getElementById("rotate").value = 100 * spiro.rotateSpeed;
             document.getElementById("width").value = spiro.width;
             document.getElementById("blur").value = 100 - 100 * spiro.blur;
-            newColors();
+            bgColor = 'rgba(' + rando1() + ',' + rando1() + ',' + rando1() + ',';
+
+            colorMgr.red = colorMgr.rando(),
+            colorMgr.green = colorMgr.rando(),
+            colorMgr.blue = colorMgr.rando(),
             draw();
         }
-        function show() {
-            msg("x: " + spiro.x + ", y: " + spiro.y);
-        }
+
         function draw() {
-            ctx.fillStyle = bgcolor + spiro.blur + ')';
+            ctx.fillStyle = bgColor + spiro.blur + ')';
             ctx.fillRect(0, 0, ww, hh);
 
             spiro.draw();
@@ -220,6 +230,9 @@
                 spiro.speed = spiro.speed * -1;
             spiro.offset += spiro.speed;
             spiro.rotateAngle += spiro.rotateSpeed;
+            
+            fgColor = colorMgr.next();
+            msg(fgColor);
             raf = window.requestAnimationFrame(draw);
         }
 
