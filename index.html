@@ -7,7 +7,6 @@
             border: 1px solid black;
             margin: 10px;
         }
-
         html, body, button {
             margin: 2px;
             font-family: monospace;
@@ -24,7 +23,7 @@
             <tr>
                 <td>
                     <label>radius1:</label>
-                    <input tabindex="1" type="number" id="radius1" onchange="(function () { spiro.radius1 = value; })();">
+                    <input tabindex="1" type="number" id="radius1" onchange="(function () { spiro.radius1 = Number.parseInt(value); })();">
                 </td>
                 <td>
                     <div class="slidecontainer">
@@ -45,7 +44,7 @@
             <tr>
                 <td>
                     <label>radius2:</label>
-                    <input tabindex="2" type="number" id="radius2" onchange="(function () { spiro.radius2 = value; })();">
+                    <input tabindex="2" type="number" id="radius2" onchange="(function () { spiro.radius2 = Number.parseInt(value); })();">
                 </td>
                 <td>
                     <div class="slidecontainer">
@@ -66,20 +65,20 @@
             <tr>
                 <td>
                     <label>radius3:</label>
-                    <input tabindex="3" type="number" id="radius3" onchange="(function () { spiro.radius3 = value; })();">
+                    <input tabindex="3" type="number" id="radius3" onchange="(function () { spiro.radius3 = Number.parseInt(value); })();">
                 </td>
                 <td>
                     <div class="slidecontainer">
                         scale
-                        <input tabindex="-1" type="range" min="1" max="50" value="10" class="slider" id="scale"
+                        <input tabindex="-1" type="range" min="1" max="50" value="40" class="slider" id="scale"
                                oninput="(function(){ spiro.scale = value; })();">
                     </div>
                 </td>
                 <td>
                     <div class="slidecontainer">
-                        trans
-                        <input tabindex="-1" type="range" min="10" max="100" value="50" class="slider" id="trans"
-                               oninput="(function(){ spiro.trans = 1 - value / 100; })();">
+                        blur
+                        <input tabindex="-1" type="range" min="10" max="100" value="80" class="slider" id="blur"
+                               oninput="(function(){ spiro.blur = 1 - value / 100; })();">
                     </div>
                 </td>
                 <td></td>
@@ -90,11 +89,12 @@
         <div id="msg"></div>
     </p>
     <script>
-        // -9, 5, -7
+        // -9, -6, -1
         // 6, -2, 8
+        // -7, -4, -1
+        // 7, -2, -6
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
-        var running = false;
         var ww = window.innerWidth * .6;
         var hh = window.innerHeight * .8;
         var raf = 0, fgcolor, bgcolor;
@@ -102,11 +102,11 @@
         canvas.height = hh;
 
         var spiro = {
-            radius1: 3,
-            radius2: -5,
-            radius3: 4,
-            scale: 10, speed: 0.04, trans: 0.5, width: 3, offset: 0.0,
-            rotateSpeed: 0.01, rotateAngle: 0.0, loops: 10,
+            radius1: -7,
+            radius2: -4,
+            radius3: -1,
+            scale: 40, speed: 0.04, blur: 0.2, width: 3, offset: 0.0,
+            rotateSpeed: 0.01, rotateAngle: 0.0, loops: 10, x:-1, y:-1,
             draw: function () {
                 ctx.save()
                 ctx.translate(ww / 2, hh / 2);
@@ -116,22 +116,22 @@
                 var tooBig = false;
                 for (let angle1 = 0.0; angle1 < this.loops * 2 * Math.PI; angle1 += 0.005) {
                     var angle2 = angle1 * (this.radius1 - this.radius2) / this.radius2;
-                    var angle3 = angle2 * (this.radius2 - this.radius3) / this.radius3;
+                    var angle3 = angle2 * (this.radius1 - this.radius2 + this.radius3) / this.radius3;
 
-                    var x = (this.radius1 - this.radius2 - this.radius3) * Math.cos(angle1);
-                    x += (this.radius2 - this.radius3) * Math.cos(angle2);
-                    x += this.offset * this.radius3 * Math.cos(angle3);
-                    x *= this.scale;
+                    this.x = (this.radius1 - this.radius2 + this.radius3) * Math.cos(angle1);
+                    this.x += (this.radius3 - this.radius2) * Math.cos(angle2);
+                    this.x += this.offset * this.radius3 * Math.cos(angle3);
+                    this.x *= this.scale;
 
-                    var y = (this.radius1 - this.radius2 - this.radius3) * Math.sin(angle1);
-                    y -= (this.radius2 - this.radius3) * Math.sin(angle2);
-                    y -= this.offset * this.radius3 * Math.sin(angle3);
-                    y *= this.scale;
-                    if (y > hh / 2) tooBig = true;
+                    this.y = (this.radius1 - this.radius2 + this.radius3) * Math.sin(angle1);
+                    this.y -= (this.radius3 - this.radius2) * Math.sin(angle2);
+                    this.y -= this.offset * this.radius3 * Math.sin(angle3);
+                    this.y *= this.scale;
+                    if (this.y > hh / 2) tooBig = true;
                     if (angle1 == 0)
-                        ctx.moveTo(x, y);
+                        ctx.moveTo(this.x, this.y);
                     else
-                        ctx.lineTo(x, y);
+                        ctx.lineTo(this.x, this.y);
                 }
                 if (tooBig)
                     this.scale -= 0.25;
@@ -161,6 +161,7 @@
             document.getElementById("radius1").value = spiro.radius1;
             document.getElementById("radius2").value = spiro.radius2;
             document.getElementById("radius3").value = spiro.radius3;
+            document.getElementById("scale").value = spiro.scale = 20;
             newColors();
         }
         function pause() {
@@ -194,12 +195,15 @@
             document.getElementById("scale").value = spiro.scale;
             document.getElementById("rotate").value = 100 * spiro.rotateSpeed;
             document.getElementById("width").value = spiro.width;
-            document.getElementById("trans").value = 100 - 100 * spiro.trans;
+            document.getElementById("blur").value = 100 - 100 * spiro.blur;
             newColors();
             draw();
         }
+        function show() {
+            msg("x: " + spiro.x + ", y: " + spiro.y);
+        }
         function draw() {
-            ctx.fillStyle = bgcolor + spiro.trans + ')';
+            ctx.fillStyle = bgcolor + spiro.blur + ')';
             ctx.fillRect(0, 0, ww, hh);
 
             spiro.draw();
