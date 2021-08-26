@@ -6,9 +6,10 @@
 
     <script type="text/javascript">
         // interesting presets:
-        // 10, -2, 6, 12, 40, .23
-        // 5, 7, -1, 24, 7, 0.10
-        // -6, 2, 8, 16, 7, 0.09
+        // 10, -2, 6
+        // 5, 7, -1
+        // -6, 2, 8
+        // 6, -4, 4
         let ww = window.innerWidth * .6;
         let hh = window.innerHeight * .8;
         let radius1 = 1, radius2 = 2, radius3 = 3, line_width = 3;
@@ -42,6 +43,7 @@
             ctx.rotate(rotateAngle);
             rotateAngle += rotateSpeed;
             var tooBig = false;
+//            msg(radius1 + "," + radius2 + "," + radius3 + "," + scale + "," + speed);
 
             for (let angle1 = 0.0; angle1 < loops * 2 * Math.PI; angle1 += 0.005) {
                 var angle2 = angle1 * (radius1 - radius2) / radius2;
@@ -156,7 +158,7 @@
                 <td><button tabindex="-1" id="pause" onclick="pause()">pause</button></td>
             </tr>
             <tr><td><label>radius3:</label>
-                    <input tabindex="3" type="number" id="radius3" onchange="(function () { radius2 = value; })();">
+                    <input tabindex="3" type="number" id="radius3" onchange="(function () { radius3 = value; })();">
                 </td>
                 <td><div class="slidecontainer">scale
                         <input tabindex="-1" type="range" min="1" max="100" value="30" class="slider" id="scale"
