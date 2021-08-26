@@ -99,6 +99,8 @@
         // 6, -2, 8
         // -7, -4, -1
         // 7, -2, -6
+        // 5, 6, -1
+        // -7, -4, 2
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
         var ww = window.innerWidth * .6;
@@ -169,6 +171,7 @@
             document.getElementById("radius3").value = spiro.radius3;
             document.getElementById("scale").value = spiro.scale = 20;
             newColors();
+            if (!raf) pause();
         }
         function pause() {
             if (raf) {
