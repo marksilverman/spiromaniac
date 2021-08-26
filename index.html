@@ -9,41 +9,39 @@
         // 10, -2, 6
         // 5, 7, -1
         // -6, 2, 8
-        // 6, -4, 4
+        // 3, -5, 4
         let ww = window.innerWidth * .6;
         let hh = window.innerHeight * .8;
-        let radius1 = 1, radius2 = 2, radius3 = 3, line_width = 3;
-        let intervalID = 0, scale = 80, speed = 0.02, globalColor = 0;
-        let offset = 0.0, rotateAngle = 0.0, rotateSpeed = 0.01, loops = 10;
+        let radius1 = 3, radius2 = -5, radius3 = 4;
+        let intervalID = 0, scale = 10, speed = 0.04, globalColor = 0, line_width = 3;
+        let offset = 0.0, rotateAngle = 0.0, rotateSpeed = 0.01, loops = 10, factor = 200;
         var canvas, ctx;
 
         function msg(info) { document.getElementById("msg").innerHTML = info; }
 
         function nextColor()
         {
-            globalColor++;
+            globalColor += 0xffff;
             if (globalColor > 0xffffff)
-                globalColor = 0;
-            return '#' + globalColor.toString(16);
+                globalColor -= 0xffffff;
+            // return '#' + globalColor.toString(16);
         }
 
         function draw() {
             canvas.width = ww;
             canvas.height = hh;
 
-            var grd = ctx.createRadialGradient(ww * .5, hh * .5, ww / 2, ww * .5, hh * .5, ww / 8);
-            grd.addColorStop(0, nextColor());
-            grd.addColorStop(1, 'white');
-            ctx.fillStyle = grd;
-            ctx.rect(0, 0, ww, hh);
-            ctx.fill();
+            var colorString = '#' + globalColor.toString(16);
+            var gradient = ctx.createRadialGradient(ww * .5, hh * .5, ww / 2, ww * .5, hh * .5, ww / 8);
+            gradient.addColorStop(0, colorString);
+            gradient.addColorStop(1, 'white');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, ww, hh);
 
             ctx.translate(ww / 2, hh / 2);
             ctx.beginPath();
             ctx.rotate(rotateAngle);
             rotateAngle += rotateSpeed;
-            var tooBig = false;
-//            msg(radius1 + "," + radius2 + "," + radius3 + "," + scale + "," + speed);
 
             for (let angle1 = 0.0; angle1 < loops * 2 * Math.PI; angle1 += 0.005) {
                 var angle2 = angle1 * (radius1 - radius2) / radius2;
@@ -63,12 +61,10 @@
                     ctx.moveTo(x, y);
                 else
                     ctx.lineTo(x, y);
-                if (y > hh / 2)
-                    tooBig = true;
             }
             ctx.lineWidth = line_width;
             ctx.stroke();
-            if (tooBig)
+            if (Math.abs(offset) > 2)
                 speed = speed * -1;
             offset += speed;
         }
@@ -106,11 +102,29 @@
             document.getElementById("radius1").value = radius1;
             document.getElementById("radius2").value = radius2;
             document.getElementById("radius3").value = radius3;
-            document.getElementById("scale").value = scale = 10;
-            document.getElementById("speed").value = speed = 0.04;
-            document.getElementById("offset").value = offset = 0.0;
-
+//            document.getElementById("scale").value = scale = 20;
+//            speed = 0.04;
+//            document.getElementById("speed").value = speed * 200;
+//            document.getElementById("offset").value = offset = 0.0;
+            nextColor();
         }
+        function fullScreen()
+        {
+            t = document.getElementById("table");
+            if (t.style.display == "none")
+            {
+                t.style.display = "block";
+                ww = window.innerWidth * 0.6;
+                hh = window.innerHeight * 0.8;
+            }
+            else
+            {
+                t.style.display = "none";
+                ww = window.innerWidth;
+                hh = window.innerHeight;
+            }
+        }
+
     </script>
 
     <style type="text/css">
@@ -130,13 +144,13 @@
 <body onload="setup();">
     <p>
         <div id="msg"></div>
-        <table>
+        <table id="table">
             <tr><td><label>radius1:</label>
                     <input  tabindex="1" type="number" id="radius1" onchange="(function () { radius1 = value; })();">
                 </td>
                 <td><div class="slidecontainer">speed
-                        <input tabindex="-1" type="range" min="0" max="100" value="20" class="slider" id="speed"
-                               oninput="(function(){speed = value / 200.0;})();">
+                        <input tabindex="-1" type="range" min="0" max="50" value="20" class="slider" id="speed"
+                               oninput="(function(){speed = value / 200;})();">
                     </div></td>
                 <td><div class="slidecontainer">rotation
                         <input tabindex="-1" type="range" min="0" max="40" value="10" class="slider" id="rotate"
@@ -158,14 +172,19 @@
                 <td><button tabindex="-1" id="pause" onclick="pause()">pause</button></td>
             </tr>
             <tr><td><label>radius3:</label>
-                    <input tabindex="3" type="number" id="radius3" onchange="(function () { radius3 = value; })();">
+                    <input tabindex="3" type="number" id="radius3" onchange="(function () { radius2 = value; })();">
                 </td>
+                
                 <td><div class="slidecontainer">scale
-                        <input tabindex="-1" type="range" min="1" max="100" value="30" class="slider" id="scale"
+                        <input tabindex="-1" type="range" min="1" max="50" value="10" class="slider" id="scale"
                                oninput="(function(){ scale = value; })();">
-                    </div></td></tr>
+                    </div></td>
+                    <td></td>
+                    <td></td>
+            </tr>
         </table>
     </p>
     <canvas id="spiro" width=1500 height=800></canvas>
+<br><button tabindex="-1" id="full screen" onclick="fullScreen()">full screen</button>
 </body>
 </html>
