@@ -1,128 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title>Spiromaniac</title>
-
-    <script type="text/javascript">
-        // interesting presets:
-        // 10, -2, 6
-        // 5, 7, -1
-        // -6, 2, 8
-        // 3, -5, 4
-        // 8, 3, 5
-        let ww = window.innerWidth * .6;
-        let hh = window.innerHeight * .8;
-        let radius1 = 3, radius2 = -5, radius3 = 4;
-        let intervalID = 0, scale = 10, speed = 0.04, globalColor = 0, line_width = 3, noise = 0;
-        let offset = 0.0, rotateAngle = 0.0, rotateSpeed = 0.01, loops = 10, factor = 200;
-        var canvas, ctx;
-
-        function msg(info) { document.getElementById("msg").innerHTML = info; }
-
-        function nextColor()
-        {
-            globalColor += 0xffff;
-            if (globalColor > 0xffffff)
-                globalColor -= 0xffffff;
-            // return '#' + globalColor.toString(16);
-        }
-
-        function draw() {
-            canvas.width = ww;
-            canvas.height = hh;
-
-            var colorString = '#' + globalColor.toString(16);
-            var gradient = ctx.createRadialGradient(ww * .5, hh * .5, ww / 2, ww * .5, hh * .5, ww / 8);
-            gradient.addColorStop(0, colorString);
-            gradient.addColorStop(1, 'white');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, ww, hh);
-
-            ctx.translate(ww / 2, hh / 2);
-            ctx.beginPath();
-            ctx.rotate(rotateAngle);
-            rotateAngle += rotateSpeed;
-
-            for (let angle1 = 0.0; angle1 < loops * 2 * Math.PI; angle1 += 0.005) {
-                var angle2 = angle1 * (radius1 - radius2) / radius2;
-                var angle3 = angle2 * (radius2 - radius3) / radius3;
-
-                var x = (radius1 - radius2) * Math.cos(angle1);
-                x += (radius2 - radius3) * Math.cos(angle2);
-                x += radius3 * offset * Math.cos(angle3);
-                x += noise * Math.cos(angle1) * Math.cos(angle2);
-                x *= scale;
-
-                var y = (radius1 - radius2) * Math.sin(angle1);
-                y -= (radius2 - radius3) * Math.sin(angle2);
-                y -= offset * radius3 * Math.sin(angle3);
-                y -= noise * Math.sin(angle1) * Math.sin(angle2);
-                y *= scale;
-
-                if (angle1 == 0)
-                    ctx.moveTo(x, y);
-                else
-                    ctx.lineTo(x, y);
-            }
-            ctx.lineWidth = line_width;
-            ctx.stroke();
-            if (Math.abs(offset) > 2)
-                speed = speed * -1;
-            offset += speed;
-        }
-        function setup() {
-            canvas = document.getElementById('spiro');
-            ctx = canvas.getContext('2d');
-            globalColor = Math.floor(Math.random() * 0xffffff);
-            document.getElementById("radius1").value = Number.parseFloat(radius1).toPrecision(2);
-            document.getElementById("radius2").value = Number.parseFloat(radius2).toPrecision(2);
-            document.getElementById("radius3").value = Number.parseFloat(radius3).toPrecision(2);
-            intervalID = window.setInterval(draw, 20);
-        }
-        function pause() {
-            if (intervalID) {
-                window.clearInterval(intervalID);
-                intervalID = 0;
-                document.getElementById("pause").innerHTML = "unpause";
-            }
-            else {
-                intervalID = window.setInterval(draw, 20);
-                document.getElementById("pause").innerHTML = "pause";
-            }
-        }
-        function randomize() {
-            radius1 = radius2 = radius3 = 0;
-            while (radius1 == 0)
-                radius1 = Math.round(10 - Math.random() * 20);
-            while (radius2 == 0 || radius2 == radius1)
-                radius2 = Math.round(10 - Math.random() * 20);
-            while (radius3 == 0 || radius3 == radius2 || radius3 == radius1)
-                radius3 = Math.round(10 - Math.random() * 20);
-            document.getElementById("radius1").value = radius1;
-            document.getElementById("radius2").value = radius2;
-            document.getElementById("radius3").value = radius3;
-            nextColor();
-        }
-        function fullScreen()
-        {
-            t = document.getElementById("table");
-            if (t.style.display == "none")
-            {
-                t.style.display = "block";
-                ww = window.innerWidth * 0.6;
-                hh = window.innerHeight * 0.8;
-            }
-            else
-            {
-                t.style.display = "none";
-                ww = window.innerWidth;
-                hh = window.innerHeight;
-            }
-        }
-
-    </script>
-
+    <meta charset="utf-8">
     <style type="text/css">
         canvas {
             border: 1px solid black;
@@ -135,55 +14,202 @@
             font-size: 20px;
         }
     </style>
+    <title>Spiromaniac</title>
 </head>
 
-<body onload="setup();">
+<body onload="main();">
     <p>
         <div id="msg"></div>
         <table id="table">
-            <tr><td><label>radius1:</label>
-                    <input  tabindex="1" type="number" id="radius1" onchange="(function () { radius1 = value; })();">
+            <tr>
+                <td>
+                    <label>radius1:</label>
+                    <input tabindex="1" type="number" id="radius1" onchange="(function () { spiro.radius1 = value; })();">
                 </td>
-                <td><div class="slidecontainer">speed
+                <td>
+                    <div class="slidecontainer">
+                        speed
                         <input tabindex="-1" type="range" min="0" max="50" value="20" class="slider" id="speed"
-                               oninput="(function(){speed = value / 200;})();">
-                    </div></td>
-                <td><div class="slidecontainer">rotation
-                        <input tabindex="-1" type="range" min="0" max="40" value="10" class="slider" id="rotate"
-                               oninput="(function(){rotateSpeed = value / 200;})();">
-                    </div></td>
+                               oninput="(function(){spiro.speed = value / 200;})();">
+                    </div>
+                </td>
+                <td>
+                    <div class="slidecontainer">
+                        rotate
+                        <input tabindex="-1" type="range" min="0" max="20" value="10" class="slider" id="rotate"
+                               oninput="(function(){spiro.rotateSpeed = value / 100;})();">
+                    </div>
+                </td>
                 <td><button tabindex="-1" onclick="randomize()">randomize</button></td>
             </tr>
-            <tr><td><label>radius2:</label>
-                    <input tabindex="2" type="number" id="radius2" onchange="(function () { radius2 = value; })();">
+            <tr>
+                <td>
+                    <label>radius2:</label>
+                    <input tabindex="2" type="number" id="radius2" onchange="(function () { spiro.radius2 = value; })();">
                 </td>
-                <td><div class="slidecontainer">loops
+                <td>
+                    <div class="slidecontainer">
+                        loops
                         <input tabindex="-1" type="range" min="1" max="100" value="10" class="slider" id="loops"
-                               oninput="(function(){loops = value;})();">
-                    </div></td>
-                <td><div class="slidecontainer">width
-                        <input tabindex="-1" type="range" min="1" max="20" value="3" class="slider"
-                               oninput="(function(){line_width = value;})();">
-                    </div></td>
+                               oninput="(function(){spiro.loops = value;})();">
+                    </div>
+                </td>
+                <td>
+                    <div class="slidecontainer">
+                        width
+                        <input tabindex="-1" type="range" min="1" max="20" value="3" class="slider" id="width"
+                               oninput="(function(){spiro.width = value;})();">
+                    </div>
+                </td>
                 <td><button tabindex="-1" id="pause" onclick="pause()">pause</button></td>
             </tr>
-            <tr><td><label>radius3:</label>
-                    <input tabindex="3" type="number" id="radius3" onchange="(function () { radius3 = value; })();">
+            <tr>
+                <td>
+                    <label>radius3:</label>
+                    <input tabindex="3" type="number" id="radius3" onchange="(function () { spiro.radius3 = value; })();">
                 </td>
-                <td><div class="slidecontainer">scale
+                <td>
+                    <div class="slidecontainer">
+                        scale
                         <input tabindex="-1" type="range" min="1" max="50" value="10" class="slider" id="scale"
-                               oninput="(function(){ scale = value; })();">
-                    </div></td>
-                <td><div class="slidecontainer">noise
-                        <input tabindex="-1" type="range" min="0" max="40" value="0" class="slider" id="noise"
-                               oninput="(function(){ noise = value; })();">
-                    </div></td>
-                    <td></td>
-                    <td></td>
+                               oninput="(function(){ spiro.scale = value; })();">
+                    </div>
+                </td>
+                <td>
+                    <div class="slidecontainer">
+                        trans
+                        <input tabindex="-1" type="range" min="10" max="100" value="50" class="slider" id="trans"
+                               oninput="(function(){ spiro.trans = 1 - value / 100; })();">
+                    </div>
+                </td>
+                <td></td>
+                <td></td>
             </tr>
         </table>
+        <canvas id="canvas"></canvas>
+        <div id="msg"></div>
     </p>
-    <canvas id="spiro" width=1500 height=800></canvas>
-<br><button tabindex="-1" id="full screen" onclick="fullScreen()">full screen</button>
+    <script>
+        // -9, 5, -7
+        // 6, -2, 8
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var running = false;
+        var ww = window.innerWidth * .6;
+        var hh = window.innerHeight * .8;
+        var raf = 0, fgcolor, bgcolor;
+        canvas.width = ww;
+        canvas.height = hh;
+
+        var spiro = {
+            radius1: 3,
+            radius2: -5,
+            radius3: 4,
+            scale: 10, speed: 0.04, trans: 0.5, width: 3, offset: 0.0,
+            rotateSpeed: 0.01, rotateAngle: 0.0, loops: 10,
+            draw: function () {
+                ctx.save()
+                ctx.translate(ww / 2, hh / 2);
+                ctx.rotate(this.rotateAngle);
+                ctx.beginPath();
+
+                var tooBig = false;
+                for (let angle1 = 0.0; angle1 < this.loops * 2 * Math.PI; angle1 += 0.005) {
+                    var angle2 = angle1 * (this.radius1 - this.radius2) / this.radius2;
+                    var angle3 = angle2 * (this.radius2 - this.radius3) / this.radius3;
+
+                    var x = (this.radius1 - this.radius2 - this.radius3) * Math.cos(angle1);
+                    x += (this.radius2 - this.radius3) * Math.cos(angle2);
+                    x += this.offset * this.radius3 * Math.cos(angle3);
+                    x *= this.scale;
+
+                    var y = (this.radius1 - this.radius2 - this.radius3) * Math.sin(angle1);
+                    y -= (this.radius2 - this.radius3) * Math.sin(angle2);
+                    y -= this.offset * this.radius3 * Math.sin(angle3);
+                    y *= this.scale;
+                    if (y > hh / 2) tooBig = true;
+                    if (angle1 == 0)
+                        ctx.moveTo(x, y);
+                    else
+                        ctx.lineTo(x, y);
+                }
+                if (tooBig)
+                    this.scale -= 0.25;
+                document.getElementById("scale").value = this.scale;
+                ctx.lineWidth = this.width;
+
+                rr = Math.floor(Math.random() * 55);
+                gg = Math.floor(Math.random() * 55);
+                bb = Math.floor(Math.random() * 55);
+                ctx.strokeStyle = fgcolor;
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        };
+
+        function msg(info) { document.getElementById("msg").innerHTML = info; }
+
+        function randomize() {
+            spiro.radius1 = spiro.radius2 = spiro.radius3 = 0;
+            while (spiro.radius1 == 0)
+                spiro.radius1 = Math.round(10 - Math.random() * 20);
+            while (spiro.radius2 == 0 || spiro.radius2 == radius1)
+                spiro.radius2 = Math.round(10 - Math.random() * 20);
+            while (spiro.radius3 == 0 || spiro.radius3 == spiro.radius2 || spiro.radius3 == spiro.radius1)
+                spiro.radius3 = Math.round(10 - Math.random() * 20);
+            document.getElementById("radius1").value = spiro.radius1;
+            document.getElementById("radius2").value = spiro.radius2;
+            document.getElementById("radius3").value = spiro.radius3;
+            newColors();
+        }
+        function pause() {
+            if (raf) {
+                window.cancelAnimationFrame(raf);
+                document.getElementById("pause").innerHTML = "unpause";
+                raf = 0;
+            }
+            else {
+                document.getElementById("pause").innerHTML = "pause";
+                draw();
+            }
+        }
+        function newColors() {
+            rr = Math.floor(Math.random() * 155) + 100;
+            gg = Math.floor(Math.random() * 155) + 100;
+            bb = Math.floor(Math.random() * 155) + 100;
+            bgcolor = 'rgba(' + rr + ',' + gg + ',' + bb + ',';
+
+            rr = Math.floor(Math.random() * 55);
+            gg = Math.floor(Math.random() * 55);
+            bb = Math.floor(Math.random() * 55);
+            fgcolor = 'rgba(' + rr + ',' + gg + ',' + bb + ')';
+        }
+
+        function main() {
+            document.getElementById("radius1").value = Number.parseFloat(spiro.radius1).toPrecision(2);
+            document.getElementById("radius2").value = Number.parseFloat(spiro.radius2).toPrecision(2);
+            document.getElementById("radius3").value = Number.parseFloat(spiro.radius3).toPrecision(2);
+            document.getElementById("speed").value = 200 * spiro.speed;
+            document.getElementById("scale").value = spiro.scale;
+            document.getElementById("rotate").value = 100 * spiro.rotateSpeed;
+            document.getElementById("width").value = spiro.width;
+            document.getElementById("trans").value = 100 - 100 * spiro.trans;
+            newColors();
+            draw();
+        }
+        function draw() {
+            ctx.fillStyle = bgcolor + spiro.trans + ')';
+            ctx.fillRect(0, 0, ww, hh);
+
+            spiro.draw();
+            if (Math.abs(spiro.offset) > 2)
+                spiro.speed = spiro.speed * -1;
+            spiro.offset += spiro.speed;
+            spiro.rotateAngle += spiro.rotateSpeed;
+            raf = window.requestAnimationFrame(draw);
+        }
+
+    </script>
 </body>
 </html>
