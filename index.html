@@ -40,16 +40,16 @@
                     </div>
                 </td>
                 <td>
-                        <div class="slidecontainer">
+                    <div class="slidecontainer">
                         maxoffset
                         <input tabindex="-1" type="range" min="0" max="10" value="2" class="slider" id="maxoffset"
                                oninput="(function(){ spiro.maxOffset = value; })();">
                     </div>
                 </td>
                 <td>
-                        color
-                        <input tabindex="-1" type="checkbox" id="inColor" checked
-                               onclick="(function(){ colorMgr.inColor = !colorMgr.inColor; })();">
+                    color
+                    <input tabindex="-1" type="checkbox" id="inColor" checked
+                           onclick="(function(){ colorMgr.inColor = !colorMgr.inColor; })();">
                 </td>
             </tr>
             <tr>
@@ -106,20 +106,20 @@
         // 7, -2, -6
         // 5, 6, -1
         // -7, -4, 2
+        // 8, 6, 1
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
-        var ww = window.innerWidth * .6;
-        var hh = window.innerHeight * .8;
+        var ww = window.innerWidth * .5;
+        var hh = window.innerHeight * .6;
         var raf = 0, fgColor, fgMgr, bgColor;
         canvas.width = ww;
         canvas.height = hh;
 
-        var colorMgr = 
+        var colorMgr =
         {
-            radd: 10, gadd: -10, badd: 10, inColor: true,
-            rando: function () { return Math.floor(Math.random() * 155); },
-            next: function ()
-            {
+            radd: 1, gadd: -1, badd: 1, inColor: true,
+            rando: function () { return Math.floor(Math.random() * 100); },
+            next: function () {
                 if (!this.inColor)
                     return 'black';
 
@@ -140,7 +140,7 @@
             radius2: -4,
             radius3: -1,
             scale: 40, speed: 0.04, blur: 0.2, width: 3, offset: 0.0, maxOffset: 2,
-            rotateSpeed: 0.01, rotateAngle: 0.0, loops: 10, x:-1, y:-1,
+            rotateSpeed: 0.01, rotateAngle: 0.0, loops: 10, x: -1, y: -1,
 
             draw: function () {
                 ctx.save()
@@ -150,17 +150,18 @@
 
                 var tooBig = false;
                 for (let angle1 = 0.0; angle1 < this.loops * 2 * Math.PI; angle1 += 0.005) {
-                    var angle2 = angle1 * (this.radius1 - this.radius2) / this.radius2;
-                    var angle3 = angle2 * (this.radius1 - this.radius2 + this.radius3) / this.radius3;
-
                     this.x = (this.radius1 - this.radius2 + this.radius3) * Math.cos(angle1);
-                    this.x += (this.radius3 - this.radius2) * Math.cos(angle2);
-                    this.x += this.offset * this.radius3 * Math.cos(angle3);
-                    this.x *= this.scale;
-
                     this.y = (this.radius1 - this.radius2 + this.radius3) * Math.sin(angle1);
+
+                    var angle2 = angle1 * (this.radius1 - this.radius2) / this.radius2;
+                    this.x += (this.radius3 - this.radius2) * Math.cos(angle2);
                     this.y -= (this.radius3 - this.radius2) * Math.sin(angle2);
+
+                    var angle3 = angle2 * (this.radius1 - this.radius2 + this.radius3) / this.radius3;
+                    this.x += this.offset * this.radius3 * Math.cos(angle3);
                     this.y -= this.offset * this.radius3 * Math.sin(angle3);
+
+                    this.x *= this.scale;
                     this.y *= this.scale;
 
                     if (this.y > hh / 2) tooBig = true;
@@ -225,9 +226,9 @@
             bgColor = 'rgba(' + rando1() + ',' + rando1() + ',' + rando1() + ',';
 
             colorMgr.red = colorMgr.rando(),
-            colorMgr.green = colorMgr.rando(),
-            colorMgr.blue = colorMgr.rando(),
-            draw();
+                colorMgr.green = colorMgr.rando(),
+                colorMgr.blue = colorMgr.rando(),
+                draw();
         }
 
         function draw() {
@@ -239,11 +240,12 @@
                 spiro.speed = spiro.speed * -1;
             spiro.offset += spiro.speed;
             spiro.rotateAngle += spiro.rotateSpeed;
-            
+
             fgColor = colorMgr.next();
             raf = window.requestAnimationFrame(draw);
         }
 
     </script>
+    <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
 </body>
 </html>
