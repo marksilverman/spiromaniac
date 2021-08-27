@@ -46,6 +46,11 @@
                                oninput="(function(){ spiro.maxOffset = value; })();">
                     </div>
                 </td>
+                <td>
+                        color
+                        <input tabindex="-1" type="checkbox" id="inColor" checked
+                               onclick="(function(){ colorMgr.inColor = !colorMgr.inColor; })();">
+                </td>
             </tr>
             <tr>
                 <td>
@@ -111,10 +116,13 @@
 
         var colorMgr = 
         {
-            radd: 10, gadd: -10, badd: 10,
+            radd: 10, gadd: -10, badd: 10, inColor: true,
             rando: function () { return Math.floor(Math.random() * 155); },
             next: function ()
             {
+                if (!this.inColor)
+                    return 'black';
+
                 this.red += this.radd;
                 this.green += this.gadd;
                 this.blue += this.badd;
@@ -133,6 +141,7 @@
             radius3: -1,
             scale: 40, speed: 0.04, blur: 0.2, width: 3, offset: 0.0, maxOffset: 2,
             rotateSpeed: 0.01, rotateAngle: 0.0, loops: 10, x:-1, y:-1,
+
             draw: function () {
                 ctx.save()
                 ctx.translate(ww / 2, hh / 2);
@@ -232,7 +241,6 @@
             spiro.rotateAngle += spiro.rotateSpeed;
             
             fgColor = colorMgr.next();
-            msg(fgColor);
             raf = window.requestAnimationFrame(draw);
         }
 
