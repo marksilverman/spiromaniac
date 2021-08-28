@@ -1,6 +1,6 @@
 ## Spiromaniac
 
-This code generates patterns based on spirograph mechanics. It uses three virtual wheels nested inside one another. For a given angle *angle1*, here's how we plot a point:'
+This code generates patterns based on spirograph mechanics. It uses three virtual wheels nested inside one another. For a given angle *angle1*, here's how we plot a point:
 
 ```javascript
     // 1st wheel
