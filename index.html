@@ -7,7 +7,6 @@
             border: 1px solid black;
             margin: 10px;
         }
-
         html, body, button {
             margin: 2px;
             font-family: monospace;
@@ -23,78 +22,76 @@
         <table id="table">
             <tr>
                 <td>
-                    <label>radius1:</label>
-                    <input tabindex="1" type="number" id="radius1" onchange="(function () { spiro.radius1 = Number.parseInt(value); })();">
+                    <label>radius1</label>
+                    <input tabindex="1" type="number" id="radius1"
+                           onchange="(function () { spiro.radius1 = Number.parseInt(value); })();">
                 </td>
                 <td>
-                    <div class="slidecontainer">
-                        speed
+                    <div>
+                        <label>speed</label>
                         <input tabindex="-1" type="range" min="0" max="50" value="20" class="slider" id="speed"
-                               oninput="(function(){spiro.speed = value / 200;})();">
+                            oninput="(function(){spiro.speed = value / 200;})();">
                     </div>
                 </td>
                 <td>
-                    <div class="slidecontainer">
-                        rotate
+                    <div>
+                        <label>rotate</label>
                         <input tabindex="-1" type="range" min="0" max="20" value="10" class="slider" id="rotate"
-                               oninput="(function(){spiro.rotateSpeed = value / 100;})();">
+                            oninput="(function(){spiro.rotateSpeed = value / 100;})();">
                     </div>
                 </td>
                 <td>
-                    <div class="slidecontainer">
-                        maxoffset
+                    <div>
+                        <label>maxoffset</label>
                         <input tabindex="-1" type="range" min="0" max="10" value="2" class="slider" id="maxoffset"
-                               oninput="(function(){ spiro.maxOffset = value; })();">
+                            oninput="(function(){ spiro.maxOffset = value; })();">
                     </div>
                 </td>
                 <td>
-                    color
+                    <label>color</label>
                     <input tabindex="-1" type="checkbox" id="inColor" checked
-                           onclick="(function(){ colorMgr.inColor = !colorMgr.inColor; })();">
+                    onclick="(function(){ colorMgr.inColor = !colorMgr.inColor; })();">
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label>radius2:</label>
-                    <input tabindex="2" type="number" id="radius2" onchange="(function () { spiro.radius2 = Number.parseInt(value); })();">
+                    <label>radius2</label>
+                    <input tabindex="2" type="number" id="radius2"
+                       onchange="(function () { spiro.radius2 = Number.parseInt(value); })();">
                 </td>
                 <td>
-                    <div class="slidecontainer">
-                        loops
-                        <input tabindex="-1" type="range" min="1" max="100" value="10" class="slider" id="loops"
-                               oninput="(function(){spiro.loops = value;})();">
-                    </div>
+                    <label>loops</label>
+                    <input tabindex="-1" type="range" min="1" max="100" value="10" class="slider" id="loops"
+                        oninput="(function(){spiro.loops = value;})();">
                 </td>
                 <td>
-                    <div class="slidecontainer">
-                        width
-                        <input tabindex="-1" type="range" min="1" max="20" value="3" class="slider" id="width"
-                               oninput="(function(){spiro.width = value;})();">
-                    </div>
+                    <label>width</label>
+                    <input tabindex="-1" type="range" min="1" max="20" value="3" class="slider" id="width"
+                        oninput="(function(){spiro.width = value;})();">
                 </td>
-                <td><button tabindex="-1" onclick="randomize()">randomize</button></td>
+                <td>
+                    <button tabindex="-1" onclick="randomize()">randomize</button>
+                </td>
             </tr>
             <tr>
                 <td>
-                    <label>radius3:</label>
-                    <input tabindex="3" type="number" id="radius3" onchange="(function () { spiro.radius3 = Number.parseInt(value); })();">
+                    <label>radius3</label>
+                    <input tabindex="3" type="number" id="radius3"
+                           onchange="(function () { spiro.radius3 = Number.parseInt(value); })();">
                 </td>
                 <td>
-                    <div class="slidecontainer">
-                        scale
-                        <input tabindex="-1" type="range" min="1" max="50" value="40" class="slider" id="scale"
-                               oninput="(function(){ spiro.scale = value; })();">
-                    </div>
+                    <label>scale</label>
+                    <input tabindex="-1" type="range" min="1" max="50" value="40" class="slider" id="scale"
+                        oninput="(function(){ spiro.scale = value; })();">
                 </td>
                 <td>
-                    <div class="slidecontainer">
-                        blur
+                    <label>blur</label>
                         <input tabindex="-1" type="range" min="10" max="100" value="80" class="slider" id="blur"
-                               oninput="(function(){ spiro.blur = 1 - value / 100; })();">
-                    </div>
+                            oninput="(function(){ spiro.blur = 1 - value / 100; })();">
                 </td>
-                <td><button tabindex="-1" id="pause" onclick="pause()">pause</button></td>
-                <td></td>
+                <td>
+                    <button tabindex="-1" id="pause" onclick="pause()">pause</button>
+                </td>
             </tr>
         </table>
         <canvas id="canvas"></canvas>
@@ -227,10 +224,10 @@
             document.getElementById("blur").value = 100 - 100 * spiro.blur;
             bgColor = 'rgba(' + rando1() + ',' + rando1() + ',' + rando1() + ',';
 
-            colorMgr.red = colorMgr.rando(),
-                colorMgr.green = colorMgr.rando(),
-                colorMgr.blue = colorMgr.rando(),
-                draw();
+            colorMgr.red = colorMgr.rando();
+            colorMgr.green = colorMgr.rando();
+            colorMgr.blue = colorMgr.rando();
+            draw();
         }
 
         function draw() {
