@@ -152,16 +152,19 @@
 
                 var tooBig = false;
                 for (let angle1 = 0.0; angle1 < this.loops * 2 * Math.PI; angle1 += 0.005) {
+                    // 1st wheel
                     this.x = (this.radius1 - this.radius2 + this.radius3) * Math.cos(angle1);
                     this.y = (this.radius1 - this.radius2 + this.radius3) * Math.sin(angle1);
 
+                    // 2nd wheel
                     var angle2 = angle1 * (this.radius1 - this.radius2) / this.radius2;
-                    this.x += (this.radius3 - this.radius2) * Math.cos(angle2);
-                    this.y -= (this.radius3 - this.radius2) * Math.sin(angle2);
+                    this.x += Math.cos(angle2);
+                    this.y -= Math.sin(angle2);
 
+                    // 3rd wheel
                     var angle3 = angle2 * (this.radius1 - this.radius2 + this.radius3) / this.radius3;
-                    this.x += this.offset * this.radius3 * Math.cos(angle3);
-                    this.y -= this.offset * this.radius3 * Math.sin(angle3);
+                    this.x += this.offset * Math.cos(angle3);
+                    this.y -= this.offset * Math.sin(angle3);
 
                     this.x *= this.scale;
                     this.y *= this.scale;
